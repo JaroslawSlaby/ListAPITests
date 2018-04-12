@@ -1,417 +1,536 @@
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ArrayListTest {
 
-    private List<String> testList;
-
-    @BeforeMethod
-    public void setUp() {
-        testList = new ArrayList<String>();
+    @DataProvider(name = "collectionImpl")
+    public Object[] collectionImpl() {
+        return new Object[]{
+                new ArrayList<String>(),
+                new LinkedList<String>(),
+                new Stack<String>()
+        };
     }
 
-    @Test
-    public void addOneElementTest() {
+    @Test(dataProvider = "collectionImpl")
+    public void addOneElementTest(List<String> collection) {
         // given
         // when
-        boolean isAdded = testList.add("testString");
+        boolean isAdded = collection.add("testString");
         // then
         assert isAdded : "isAdded == false";
     }
 
-    @Test
-    public void addOneNullElement() {
+    @Test(dataProvider = "collectionImpl")
+    public void addOneNullElement(List<String> collection) {
         // given
         // when
-        boolean isAdded = testList.add(null);
+        boolean isAdded = collection.add(null);
         // then
         assert isAdded : "isAdded == false";
     }
 
-    @Test
-    public void addFewElementsWithNull() {
+    @Test(dataProvider = "collectionImpl")
+    public void addFewElementsWithNull(List<String> collection) {
         // given
-
         // when
-        boolean a = testList.add("a");
-        boolean b = testList.add("b");
-        boolean c = testList.add(null);
-        boolean d = testList.add("c");
+        boolean a = collection.add("a");
+        boolean b = collection.add("b");
+        boolean c = collection.add(null);
+        boolean d = collection.add("c");
         // then
         assert a && b && c && d : "Null element not added";
     }
 
-    @Test
-    public void addOneElementTestSize() {
+    @Test(dataProvider = "collectionImpl")
+    public void addOneElementTestSize(List<String> collection) {
         // given
         // when
-        testList.add("testString");
-        int sizeBefore = testList.size();
-        testList.add("testString");
-        int sizeAfter = testList.size();
+        collection.add("testString");
+        int sizeBefore = collection.size();
+        collection.add("testString");
+        int sizeAfter = collection.size();
         // then
         assert (sizeBefore + 1) == sizeAfter : "Size after is wrong";
     }
 
-    @Test
-    public void addElementAtSecondPosition() {
+    @Test(dataProvider = "collectionImpl")
+    public void addElementAtSecondPosition(List<String> collection) {
         // given
         // when
-        testList.add(0, "testString");
-        int sizeBefore = testList.size();
-        testList.add(1, "testString");
-        int sizeAfter = testList.size();
+        collection.add(0, "testString");
+        int sizeBefore = collection.size();
+        collection.add(1, "testString");
+        int sizeAfter = collection.size();
         // then
         assert sizeAfter == sizeBefore + 1 : "Size after is wrong";
-        assert testList.get(1) != null : "2nd element is null";
+        assert collection.get(1) != null : "2nd element is null";
     }
 
-    @Test(expectedExceptions = IndexOutOfBoundsException.class)
-    public void addElementAtMinusPosition() {
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void addElementAtMinusPosition(List<String> collection) {
         // given
         // when
-        testList.add(-1, "testString");
+        collection.add(-1, "testString");
         // then
     }
 
-    @Test(expectedExceptions = IndexOutOfBoundsException.class)
-    public void addElementAtPositionBiggerThanSize() {
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void addElementAtPositionBiggerThanSize(List<String> collection) {
         // given
         // when
-        testList.add(testList.size() + 2, "testString");
+        collection.add(collection.size() + 2, "testString");
         // then
     }
 
-    @Test
-    public void addNullTwoTimes() {
+    @Test(dataProvider = "collectionImpl")
+    public void addNullTwoTimes(List<String> collection) {
         // given
-
         // when
-        boolean a = testList.add(null);
-        boolean b = testList.add(null);
+        boolean a = collection.add(null);
+        boolean b = collection.add(null);
         // then
         assert a && b : "Null element cannot be added two times";
     }
 
-    @Test
-    public void addElementAtZeroPosition() {
+    @Test(dataProvider = "collectionImpl")
+    public void addElementAtZeroPosition(List<String> collection) {
         // given
         // when
         int sizeBefore = 0;
-        testList.add(0, "testString");
-        int sizeAfter = testList.size();
+        collection.add(0, "testString");
+        int sizeAfter = collection.size();
         // then
         assert sizeAfter == sizeBefore + 1 : "Size after is wrong";
     }
 
-    @Test
-    public void addAnotherNotNullCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void addAnotherNotNullCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("testString");
-        tempList.add("testString");
-        tempList.add(null);
+        List<String> tempList = new ArrayList<String>() {
+            {
+                add("testString");
+                add("testString");
+                add(null);
+            }
+        };
         // when
-        boolean isAdded = testList.addAll(tempList);
+        boolean isAdded = collection.addAll(tempList);
         // then
         assert isAdded : "Another collection not added";
-        assert tempList.size() == testList.size() : "Sizes are different";
+        assert tempList.size() == collection.size() : "Sizes are different";
     }
 
-    @Test
-    public void addAnotherEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void addAnotherEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<String>();
         // when
-        boolean isAdded = testList.addAll(tempList);
+        boolean isAdded = collection.addAll(tempList);
         // then
         assert !isAdded : "Another empty collection not added";
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
-    public void addAnotherNullCollection() {
+    @Test(expectedExceptions = NullPointerException.class, dataProvider = "collectionImpl")
+    public void addAnotherNullCollection(List<String> collection) {
         // given
         List<String> tempList = null;
         // when
-        testList.addAll(tempList);
+        collection.addAll(tempList);
         // then
     }
 
-    @Test
-    public void addAnotherNotEmptyCollectionDifferentType() {
+    @Test(dataProvider = "collectionImpl")
+    public void addAnotherNotEmptyCollectionDifferentType(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>();
-        tempList.add("testString");
-        tempList.add("testString");
-        tempList.add(null);
+        List<String> tempList = new LinkedList<String>() {
+            {
+                add("testString");
+                add("testString");
+                add(null);
+            }
+        };
         // when
-        boolean isAdded = testList.addAll(tempList);
+        boolean isAdded = collection.addAll(tempList);
         // then
         assert isAdded : "Different type collection not added";
     }
 
-    @Test
-    public void addAnotherEmptyCollectionDifferentType() {
+    @Test(dataProvider = "collectionImpl")
+    public void addAnotherEmptyCollectionDifferentType(List<String> collection) {
         // given
         List<String> tempList = new LinkedList<String>();
         // when
-        boolean isAdded = testList.addAll(tempList);
+        boolean isAdded = collection.addAll(tempList);
         // then
         assert !isAdded : "Different type empty collection not added";
     }
 
-    @Test
-    public void addAnotherCollectionAtSecondIndex() {
-        // given
-        testList.add("testString");
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("testString");
-        tempList.add("testString");
-        tempList.add(null);
-        // when
-        boolean isAdded = testList.addAll(1, tempList);
-        // then
-        assert isAdded : "Another list not added";
-    }
-
-    @Test(expectedExceptions = IndexOutOfBoundsException.class)
-    public void addAnotherCollectionAtMinusIndex() {
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void addAnotherCollectionAtMinusIndex(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<String>();
         tempList.add("testString");
         // when
-        testList.addAll(-1, tempList);
+        collection.addAll(-1, tempList);
         // then
     }
 
-    @Test(expectedExceptions = IndexOutOfBoundsException.class)
-    public void addAnotherCollectionAtIndexBiggerThanSize() {
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void addAnotherCollectionAtIndexBiggerThanSize(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("testString");
+        List<String> tempList = new ArrayList<String>() {
+            {
+                add("testString");
+            }
+        };
         // when
-        testList.addAll(testList.size() + 2, tempList);
+        collection.addAll(collection.size() + 2, tempList);
         // then
     }
 
-    @Test
-    public void clearNotEmptyList() {
+    @Test(dataProvider = "collectionImpl")
+    public void clearNotEmptyList(List<String> collection) {
         // given
-        testList.add("testString");
+        addElementsToCollection(collection, "one", "two");
         // when
-        testList.clear();
+        collection.clear();
         // then
-        assert testList.size() == 0 : "Not empty list after clearing";
+        assert collection.size() == 0 : "Not empty list after clearing";
     }
 
-    @Test
-    public void clearEmptyList() {
+    @Test(dataProvider = "collectionImpl")
+    public void clearEmptyList(List<String> collection) {
         // given
-
         // when
-        testList.clear();
+        collection.clear();
         // then
-        assert testList.size() == 0 : "$MSG";
+        assert collection.size() == 0 : "$MSG";
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
-    public void clearNullList() {
+    @Test(expectedExceptions = NullPointerException.class, dataProvider = "collectionImpl")
+    public void clearNullList(List<String> collection) {
         // given
-        testList = null;
+        collection = null;
         // when
-        testList.clear();
+        collection.clear();
         // then
     }
 
-    @Test
-    public void containsNotNullElement() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsNotNullElement(List<String> collection) {
         // given
-        testList.add("test");
+        addElementsToCollection(collection, "one", "two", "test");
         // when
-        boolean contains = testList.contains("test");
+        boolean contains = collection.contains("test");
         // then
         assert contains : "List doesn't contain specified element";
     }
 
-    @Test
-    public void containsNullElement() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsNullElement(List<String> collection) {
         // given
-        testList.add(null);
+        collection.add(null);
         // when
-        boolean contains = testList.contains(null);
+        boolean contains = collection.contains(null);
         // then
         assert contains : "List doesn't contain null element";
     }
 
-    @Test
-    public void containsNotExistingElement() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsNotExistingElement(List<String> collection) {
         // given
-        testList.add("non-test");
+        addElementsToCollection(collection, "one", "two");
         // when
-        boolean contains = testList.contains("test");
+        boolean contains = collection.contains("test");
         // then
         assert !contains : "List doesn't contain not existing element";
     }
 
-    @Test
-    public void containsAllNotEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsAllNotEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("one");
-        tempList.add("two");
-        testList.addAll(tempList);
+        List<String> tempList = new ArrayList<String>() {
+            {
+                add("one");
+                add("two");
+            }
+        };
+        collection.addAll(tempList);
         // when
-        boolean containsAll = testList.containsAll(tempList);
+        boolean containsAll = collection.containsAll(tempList);
         // then
         assert containsAll : "Test list doesn't contain non-empty temp list";
     }
 
-    @Test
-    public void containsAllEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsAllEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<String>();
-        testList.addAll(tempList);
+        collection.addAll(tempList);
         // when
-        boolean containsAll = testList.containsAll(tempList);
+        boolean containsAll = collection.containsAll(tempList);
         // then
         assert containsAll : "Test list doesn't contain empty temp list";
     }
 
-    @Test
-    public void containsAllDifferentTypeNotEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsAllDifferentTypeNotEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>();
-        tempList.add("one");
-        tempList.add("two");
-        testList.addAll(tempList);
+        List<String> tempList = new LinkedList<String>() {
+            {
+                add("one");
+                add("two");
+            }
+        };
+        collection.addAll(tempList);
         // when
-        boolean containsAll = testList.containsAll(tempList);
+        boolean containsAll = collection.containsAll(tempList);
         // then
         assert containsAll : "Test list doesn't contain non-empty different type temp list";
     }
 
-    @Test
-    public void containsAllDifferentTypeEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void containsAllDifferentTypeEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new LinkedList<String>();
-        testList.addAll(tempList);
+        collection.addAll(tempList);
         // when
-        boolean containsAll = testList.containsAll(tempList);
+        boolean containsAll = collection.containsAll(tempList);
         // then
         assert containsAll : "Test list doesn't contain empty different type temp list";
     }
 
-    @Test
-    public void equalsTheSameCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsNull(List<String> collection) {
         // given
-
         // when
-        boolean equalsTheSame = testList.equals(testList);
+        boolean equalsNull = collection.equals(null);
+        // then
+        assert !equalsNull : "Non-null test list equals null";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void equalsTheSameCollection(List<String> collection) {
+        // given
+        // when
+        boolean equalsTheSame = collection.equals(collection);
         // then
         assert equalsTheSame : "Test list doesn't contain itself";
     }
 
-    @Test
-    public void equalsAnotherEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<String>();
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert equalsAnother : "Empty test list doesn't equals another empty list with the same type";
     }
 
-    @Test
-    public void equalsAnotherNonEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherNonEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("one");
-        tempList.add("two");
+        List<String> tempList = new ArrayList<String>() {
+            {
+                add("one");
+                add("two");
+            }
+        };
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert !equalsAnother : "Empty test list equals non-empty temp list";
     }
 
-    @Test
-    public void equalsEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsEmptyCollection(List<String> collection) {
         // given
-        testList.add("one");
-        testList.add("two");
-
+        collection.add("one");
+        collection.add("two");
         List<String> tempList = new ArrayList<String>();
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert !equalsAnother : "Non-empty test list equals empty temp list";
     }
 
-    @Test
-    public void equalsNonEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsNonEmptyCollection(List<String> collection) {
         // given
-        testList.add("one");
-        testList.add("two");
-
-        List<String> tempList = new ArrayList<String>();
-        tempList.add("one");
-        tempList.add("two");
+        collection.add("one");
+        collection.add("two");
+        List<String> tempList = new ArrayList<String>() {{
+            add("one");
+            add("two");
+        }};
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert equalsAnother : "Non-empty test list doesn't equals another list with the same elements";
     }
 
-    @Test
-    public void equalsAnotherDifferentTypeEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherDifferentTypeEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new LinkedList<String>();
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert equalsAnother : "Empty test list doesn't equals another empty list with the same type";
     }
 
-    @Test
-    public void equalsAnotherDifferentTypeNonEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherDifferentTypeNonEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>();
-        tempList.add("one");
-        tempList.add("two");
+        List<String> tempList = new LinkedList<String>() {{
+            add("one");
+            add("two");
+        }};
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert !equalsAnother : "Empty test list equals non-empty temp list";
     }
 
-    @Test
-    public void equalsAnotherTypeEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherTypeEmptyCollection(List<String> collection) {
         // given
-        testList.add("one");
-        testList.add("two");
-
+        collection.add("one");
+        collection.add("two");
         List<String> tempList = new LinkedList<String>();
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert !equalsAnother : "Non-empty test list equals empty temp list";
     }
 
-    @Test
-    public void equalsAnotherTypeNonEmptyCollection() {
+    @Test(dataProvider = "collectionImpl")
+    public void equalsAnotherTypeNonEmptyCollection(List<String> collection) {
         // given
-        testList.add("one");
-        testList.add("two");
-
-        List<String> tempList = new LinkedList<String>();
-        tempList.add("one");
-        tempList.add("two");
+        collection.add("one");
+        collection.add("two");
+        List<String> tempList = new LinkedList<String>() {{
+            add("one");
+            add("two");
+        }};
         // when
-        boolean equalsAnother = testList.equals(tempList);
+        boolean equalsAnother = collection.equals(tempList);
         // then
         assert equalsAnother : "Non-empty test list doesn't equals another different type list with the same elements";
     }
+
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void getFirstFromEmptyCollection(List<String> collection) {
+        // given
+        // when
+        collection.get(0);
+        // then
+    }
+
+    @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
+    public void getElementFromNonEmptyCollectionMinusIndex(List<String> collection) {
+        // given
+        // when
+        collection.get(-1);
+        // then
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void getFirstElementFromNonEmptyCollection(List<String> collection) {
+        // given
+        collection.add("one");
+        collection.add("two");
+        // when
+        String first = collection.get(0);
+        // then
+        assert first.equals("one") : "Non-empty test list doesn't contain element added before";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void getFirstElementFromNonEmptyCollectionIncludingAnotherCollection(List<String> collection) {
+        // given
+        List<String> tempList = new ArrayList<String>() {{
+            add("one");
+            add("two");
+        }};
+        collection.addAll(tempList);
+        // when
+        String first = collection.get(0);
+        // then
+        assert first.equals("one") : "Non-empty test list doesn't contains element from another list added by addAll method";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void getFirstElementFromNonEmptyCollectionIncludingAnotherDifferentTypeCollection(List<String> collection) {
+        // given
+        List<String> tempList = new LinkedList<String>() {{
+            add("one");
+            add("two");
+        }};
+        collection.addAll(tempList);
+        // when
+        String first = collection.get(0);
+        // then
+        assert first.equals("one") : "Non-empty test list doesn't contains element from another list with different type added by addAll method";
+    }
+
+    //FIXME: Hashcode will be here but I'm not sure it's necessary
+
+    @Test(dataProvider = "collectionImpl")
+    public void indexOfElementFromEmptyCollection(List<String> collection) {
+        // given
+        // when
+        int index = collection.indexOf("one");
+        // then
+        assert index == -1 : "Empty collection contains specified element";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void indexOfNullElementFromEmptyCollecion(List<String> collection) {
+        // given
+        // when
+        int index = collection.indexOf(null);
+        // then
+        assert index == -1 : "Empty collection contains null element";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void indexOfNullElementFromCollectionContainingNull(List<String> collection) {
+        // given
+        collection.add(null);
+        // when
+        int index = collection.indexOf(null);
+        // then
+        assert index == 0 : "Collection doesn't contain added null element";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void indexOfNullElementAddedTwoTimes(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", null, null);
+        // when
+        int index = collection.indexOf(null);
+        // then
+        assert index == 1 : "Collection doesn't contain null element added two times";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void indexOfNonNullElementAddedToCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        int index = collection.indexOf("two");
+        // then
+        assert index == 1 : "Collection doesn't contain non-null element added before one time";
+    }
+
+
+    private void addElementsToCollection(List<String> collection, String... elements) {
+        collection.addAll(Arrays.asList(elements));
+    }
+
 }
