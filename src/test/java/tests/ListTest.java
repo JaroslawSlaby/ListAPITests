@@ -1063,9 +1063,6 @@ public class ListTest {
         assert isEqual : "Can not convert empty collection to an empty array";
     }
 
-
-
-
     //helper methods
     private void addElementsToCollection(List<String> collection, String... elements) {
         collection.addAll(Arrays.asList(elements));
