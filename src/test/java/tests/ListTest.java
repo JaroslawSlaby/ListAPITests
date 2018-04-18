@@ -1,16 +1,15 @@
 package tests;
 
+import com.sun.istack.internal.NotNull;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ListTest {
 
-    private Logger logger = Logger.getLogger(getClass().getName());
+//    private Logger logger = Logger.getLogger(getClass().getName());
 
     @DataProvider(name = "collectionImpl")
     public Object[] collectionImpl() {
@@ -25,7 +24,6 @@ public class ListTest {
         // given
         // when
         boolean isAdded = collection.add("testString");
-        logger.log(Level.INFO, "Element added to " + collection.getClass().getName());
         // then
         assert isAdded : "isAdded == false";
     }
@@ -151,7 +149,7 @@ public class ListTest {
         List temp2 = Arrays.asList("1a", "2a", "3a");
         // when
         boolean isAdded = temp2.addAll(temp);
-        temp2.forEach(e -> logger.log(Level.INFO, e.toString()));
+//        temp2.forEach(e -> logger.log(Level.INFO, e.toString()));
         // then
         assert isAdded : "";
     }
@@ -773,7 +771,7 @@ public class ListTest {
         addElementsToCollection(collection, "one", "two", "two", "two", "three", "four");
         // when
         boolean removed = collection.removeAll(temp);
-        collection.forEach(e -> logger.log(Level.INFO, e));
+//        collection.forEach(e -> logger.log(Level.INFO, e));
         // then
         assert removed : "Cannot remove elements added to temporary collection from tested collection";
     }
@@ -844,7 +842,7 @@ public class ListTest {
         List<String> temp = Arrays.asList("four");
         // when
         boolean retains = collection.retainAll(temp);
-        collection.forEach(e -> logger.log(Level.INFO, e));
+//        collection.forEach(e -> logger.log(Level.INFO, e));
         // then
         assert retains : "Cannot use retainsAll on non empty collection";
     }
@@ -971,11 +969,101 @@ public class ListTest {
         collection.sort(Comparator.comparing(String::toString));
     }
 
+    @Test(dataProvider = "collectionImpl")
+    public void spliteratorForNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        // then
+        assert collection.spliterator() instanceof Spliterator : "$MSG";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void spliteratorForEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        // then
+        assert collection.spliterator() instanceof Spliterator : "$MSG";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void subListFromNonEmptyListFromIndexTwoToFour(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four", "five", "six");
+        List<String> subList = Arrays.asList("three", "four");
+        // when
+        List<String> tempList = collection.subList(2, 4);
+        // then
+        assert subList.equals(tempList) : "SubList doesn't equal result of sublist method";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IllegalArgumentException.class)
+    public void subListFromNonEmptyListFromIndexFourToTwo(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four", "five", "six");
+        // when
+        collection.subList(4, 2);
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void subListFromNonEmptyListFromIndexTwoToTwo(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four", "five", "six");
+        List<String> subList = Arrays.asList();
+        // when
+        List<String> tempList = collection.subList(2, 2);
+        // then
+        assert subList.equals(tempList) : "SubList doesn't equal result of sublist method";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
+    public void subListFromEmptyListFromIndexTwoToFour(List<String> collection) {
+        // given
+        // when
+        collection.subList(2, 4);
+        // then
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void subListForCollectionContainingAllElementsAsNull(List<String> collection) {
+        // given
+        addElementsToCollection(collection, null, null, null, null);
+        List<String> subList = Arrays.asList(null, null);
+        // when
+        List<String> tempList = collection.subList(1, 3);
+        // then
+        assert subList.equals(tempList) : "Sublist doesn't equal nulls";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void conversionToArrayNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four");
+        // when
+        Object[] elems = collection.toArray();
+        boolean isEqual = compareListAndArray(collection, elems);
+        // then
+        assert isEqual : "Can not convert collection to array";
+    }
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void illegalArgumentExceptionWhenTryToCreateListWithSizeLowerThanZero() {
         // given
         new ArrayList<>(-1);
     }
+
+    @Test(dataProvider = "collectionImpl")
+    public void conversionToArrayEmptyCollection(List<String> collection) {
+        // given
+        // when
+        Object[] elems = collection.toArray();
+        boolean isEqual = compareListAndArray(collection, elems);
+        // then
+        assert isEqual : "Can not convert empty collection to an empty array";
+    }
+
+
 
 
     //helper methods
@@ -989,6 +1077,19 @@ public class ListTest {
 
     private UnaryOperator<String> getNullOperator() {
         return s -> s = null;
+    }
+
+    private boolean compareListAndArray(@NotNull List collection, @NotNull Object[] array) {
+        if (collection.size() != array.length)
+            return false;
+
+        for (int i = 0; i < collection.size(); i++) {
+            if (!collection.get(i).equals(array[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

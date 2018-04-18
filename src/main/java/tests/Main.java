@@ -1,19 +1,60 @@
 package tests;
 
+import java.math.BigInteger;
+import java.util.stream.Stream;
+
 public class Main {
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
+//        System.out.println(fibonacci(10));
+//    }
+//
+//    static long fibonacci(long n) {
+//        if (n <= 1) {
+//            return n;
+//        } else {
+//            return fibonacci(n - 1) + fibonacci(n - 2);
+//        }
+//    }
 
-        for (int i = 0; i <= 10; i++) {
-            System.out.println(fibonacci(i));
-        }
+    public static void main(String[] args) {
+        final int n = 10000;
+        Fibonacci fibonacci = new Fibonacci();
+
+        Stream.generate(fibonacci::next)
+                .limit(n)
+                .forEach(System.out::println);
+
     }
 
-    static long fibonacci(int n) {
-        if (n <= 1) {
-            return n;
-        } else {
-            return fibonacci(n - 1) + fibonacci(n - 2);
-        }
+
+}
+
+class Fibonacci {
+    private BigInteger next = new BigInteger("1");
+    private BigInteger current = new BigInteger("1");
+    private int count = 1;
+
+    FibonacciNumber next() {
+        FibonacciNumber fibonacciNumber = new FibonacciNumber(count++, current);
+        BigInteger previous = current;
+        current = next;
+        next = current.add(previous);
+        return fibonacciNumber;
+    }
+}
+
+class FibonacciNumber {
+    private final int count;
+    private final BigInteger value;
+
+    FibonacciNumber(int count, BigInteger value) {
+        this.count = count;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return count + ": " + value.toString();
     }
 }
