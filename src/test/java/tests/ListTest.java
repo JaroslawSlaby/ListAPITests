@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class ListTest {
 
-    Logger logger = Logger.getLogger(getClass().getName());
+    private Logger logger = Logger.getLogger(getClass().getName());
 
     @DataProvider(name = "collectionImpl")
     public Object[] collectionImpl() {
@@ -871,6 +871,114 @@ public class ListTest {
     }
 
 
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
+    public void setOnEmptyCollection(List<String> collection) {
+        // given
+        // when
+        collection.set(0, "one");
+    }
+
+
+    @Test(dataProvider = "collectionImpl")
+    public void setOnNonEmptyCollectionWithIndexLowerThanCollectionSize(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        collection.set(1, "one");
+        //then
+        assert collection.get(1).contains("one") : "Cannot set on existing element";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
+    public void setOnNonEmptyCollectionWithIndexHigherThanCollectionSize(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        collection.set(3, "four");
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void sizeOfEmptyCollection(List<String> collection) {
+        // given
+        // when
+        int size = collection.size();
+        // then
+        assert size == 0 : "Empty collection has size different than 0";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void sizeOfNonEmptyCollectionContainingThreeElements(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        int size = collection.size();
+        // then
+        assert size == 3 : "Collection containing three elements has size different than 3";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = NullPointerException.class)
+    public void sizeOfNullCollection(List<String> collection) {
+        // given
+        collection = null;
+        // when
+        collection.size();
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void sortAscendingNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four");
+        List tempList = new ArrayList() {{
+            add("four");
+            add("one");
+            add("three");
+            add("two");
+        }};
+        // when
+        collection.sort(Comparator.comparing(String::toString));
+
+        // then
+        assert tempList.equals(collection) : "Collection from sort method is different than expected collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void sortAscendingEmptyCollection(List<String> collection) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        // given
+        List tempList = (List) Class.forName(collection.getClass().getName()).newInstance();
+        // when
+        collection.sort(Comparator.comparing(String::toString));
+        boolean isEqual = tempList.containsAll(collection);
+        // then
+        assert isEqual : "Empty collection from sort method is different than expected empty collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void sortAscendingNonEmptyCollectionWithMixedContent(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "1", "3", "2", "7", "three", "four", "one");
+        List<String> tempList = Arrays.asList("1", "2", "3", "7", "four", "one", "three");
+        // when
+        collection.sort(Comparator.comparing(String::toString));
+        // then
+        assert tempList.equals(collection) : "Sorting doesn't work with mixed content";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = NullPointerException.class)
+    public void sortAscendingNonEmptyCollectionWithAllElementsAsNull(List<String> collection) {
+        // given
+        addElementsToCollection(collection, null, null, null, null);
+        // when
+        collection.sort(Comparator.comparing(String::toString));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void illegalArgumentExceptionWhenTryToCreateListWithSizeLowerThanZero() {
+        // given
+        new ArrayList<>(-1);
+    }
+
+
+    //helper methods
     private void addElementsToCollection(List<String> collection, String... elements) {
         collection.addAll(Arrays.asList(elements));
     }
