@@ -1,16 +1,22 @@
+package tests;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.*;
+import java.util.function.UnaryOperator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ArrayListTest {
+public class ListTest {
+
+    Logger logger = Logger.getLogger(getClass().getName());
 
     @DataProvider(name = "collectionImpl")
     public Object[] collectionImpl() {
         return new Object[]{
                 new ArrayList<String>(),
-                new LinkedList<String>(),
-                new Stack<String>()
+                new LinkedList<String>()
         };
     }
 
@@ -19,6 +25,7 @@ public class ArrayListTest {
         // given
         // when
         boolean isAdded = collection.add("testString");
+        logger.log(Level.INFO, "Element added to " + collection.getClass().getName());
         // then
         assert isAdded : "isAdded == false";
     }
@@ -95,6 +102,16 @@ public class ArrayListTest {
         assert a && b : "Null element cannot be added two times";
     }
 
+    @Test(dataProvider = "collectionImpl", expectedExceptions = UnsupportedOperationException.class)
+    public void addToUnmodifialbeListThrowsUOE(List<String> collection) {
+        // given
+        List<String> temp = Collections.unmodifiableList(collection);
+        temp.add("elo elo elo");
+        // when
+        collection.size();
+        // then
+    }
+
     @Test(dataProvider = "collectionImpl")
     public void addElementAtZeroPosition(List<String> collection) {
         // given
@@ -121,6 +138,22 @@ public class ArrayListTest {
         // then
         assert isAdded : "Another collection not added";
         assert tempList.size() == collection.size() : "Sizes are different";
+    }
+
+    @Test(expectedExceptions = UnsupportedOperationException.class)
+    public void unsupportedOperationExceptionTest() {
+        // given
+        List<Integer> temp = new ArrayList() {{
+            add(1);
+            add(2);
+            add(3);
+        }};
+        List temp2 = Arrays.asList("1a", "2a", "3a");
+        // when
+        boolean isAdded = temp2.addAll(temp);
+        temp2.forEach(e -> logger.log(Level.INFO, e.toString()));
+        // then
+        assert isAdded : "";
     }
 
     @Test(dataProvider = "collectionImpl")
@@ -528,9 +561,326 @@ public class ArrayListTest {
         assert index == 1 : "Collection doesn't contain non-null element added before one time";
     }
 
+    @Test(dataProvider = "collectionImpl")
+    public void isEmptyEmptyCollection(List<String> colleciton) {
+        // given
+
+        // when
+        boolean isEmptyCollectionReallyEmpty = colleciton.isEmpty();
+        // then
+        assert isEmptyCollectionReallyEmpty : "Empty collection is not empty";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void isEmptyNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        boolean isNonEmptyCollectionEmpty = collection.isEmpty();
+        // then
+        assert !isNonEmptyCollectionEmpty : "Non empty collection is empty";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = NullPointerException.class)
+    public void isEmptyNullCollection(List<String> collection) {
+        // given
+        collection = null;
+        // when
+        collection.isEmpty();
+        // then
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void iteratorOfEmptyCollection(List<String> collection) {
+        // given
+
+        // when
+        Iterator<String> iter = collection.iterator();
+        // then
+        assert iter instanceof Iterator : "Iterator of collection is not an iterator";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void iteratorOfNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        Iterator<String> iterator = collection.iterator();
+        // then
+        assert iterator instanceof Iterator : "$MSG";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void lastIndexOfEmptyCollection(List<String> collection) {
+        // given
+
+        // when
+        int index = collection.lastIndexOf("one");
+        // then
+        assert index == -1 : "$MSG";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void lastIndexOfNonEmptyCollecion(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "one", "one");
+        // when
+        int index = collection.lastIndexOf("one");
+        // then
+        assert index == 4 : "$MSG";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void checkingIfIndexOfOneElementEqualsLastIndexOfElement(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one");
+        // when
+        int indexOf = collection.indexOf("one");
+        int lastIndexOf = collection.lastIndexOf("one");
+        // then
+        assert indexOf == lastIndexOf : "In one-element collection lastIndexOf doesn't equal indexOf";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void listIteratorOfEmptyCollection(List<String> collection) {
+        // given
+
+        // when
+        ListIterator<String> iterator = collection.listIterator();
+        // then
+        assert iterator instanceof ListIterator : "List iterator of empty collection is not a list iterator";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void listIteratorOfNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        ListIterator<String> iterator = collection.listIterator();
+        // then
+        assert iterator instanceof ListIterator : "List iterator of non-empty collection is not a list iterator";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void listIteratorOfNonEmptyCollectionWithIndex(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        ListIterator<String> iterator = collection.listIterator(2);
+        // then
+        assert collection.get(2).equals(iterator.next()) : "List iterator of empty collection is not a list iterator";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
+    public void listIteratorOfEmptyCollectionWithIndex(List<String> collection) {
+        // given
+        // when
+        collection.listIterator(2);
+        // then
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeFromNonEmptyList(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        String removed = collection.remove(0);
+        // then
+        assert removed.equals("one") : "Cannot remove element from list";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
+    public void removeFromEmptyList(List<String> collection) {
+        //given
+        //when
+        collection.remove(0);
+        //then
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeFromNonEmptyListUsingObject(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        boolean removed = collection.remove("one");
+        // then
+        assert removed : "Cannot remove element from collection using object";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeFromEmptyListUsingObject(List<String> collection) {
+        // given
+        // when
+        boolean removed = collection.remove("one");
+        // then
+        assert !removed : "Removed non-existing element";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeNullFromCollectionUsingObject(List<String> collection) {
+        // given
+
+        // when
+        boolean removed = collection.remove(null);
+        // then
+        assert !removed : "Removed null from empty collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeNullFromCollectionNotContainingNull(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        boolean removed = collection.remove(null);
+        // then
+        assert !removed : "Removed null from collection that is not containing null element";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeNullElementFromCollectionContainingNull(List<String> collection) {
+        // given
+        addElementsToCollection(collection, null, "one", "two", "three");
+        // when
+        boolean removed = collection.remove(null);
+        // then
+        assert removed : "Cannot remove null element from collecion containing null";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeNonNullElementAddedMoreThanOneTime(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "three");
+        // when
+        boolean removed = collection.remove("three");
+        // then
+        assert removed : "Cannot remove element added more than one time";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeAllFromEmptyCollecion(List<String> collection) {
+        // given
+        // when
+        boolean removed = collection.removeAll(new ArrayList<String>());
+        // then
+        assert !removed : "Removed another collection from empty collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeAllFromNonEmptyCollection(List<String> collection) {
+        // given
+        List<String> temp = new ArrayList<>();
+        addElementsToCollection(temp, "one", "two", "three");
+        addElementsToCollection(collection, "one", "two", "two", "two", "three", "four");
+        // when
+        boolean removed = collection.removeAll(temp);
+        collection.forEach(e -> logger.log(Level.INFO, e));
+        // then
+        assert removed : "Cannot remove elements added to temporary collection from tested collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void removeEmptyCollectionFromNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        List<String> temp = new ArrayList<>();
+        // when
+        boolean removed = collection.removeAll(temp);
+        // then
+        assert !removed : "Cannot remove empty temp collection from another collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void replaceAllElementsInNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        collection.replaceAll(getOperator());
+        // then
+        assert collection.contains("TEST_TEXT") : "Replace all doesn't work";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void replaceAllElementsInCollectionContainingNulls(List<String> collection) {
+        // given
+        addElementsToCollection(collection, null, null, null);
+        // when
+        collection.replaceAll(getOperator());
+        // then
+        assert collection.contains("TEST_TEXT") : "Cannot replace nulls";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = NullPointerException.class)
+    public void replaceAllElementsInNullCollection(List<String> collection) {
+        // given
+        collection = null;
+        // when
+        collection.replaceAll(getOperator());
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void replaceAllElementsInNonEmptyCollectionWithNulls(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three");
+        // when
+        collection.replaceAll(getNullOperator());
+        // then
+        assert collection.contains(null) : "Cannot replace elements with nulls";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void retainAllFromEmptyCollection(List<String> collection) {
+        // given
+
+        // when
+        boolean retains = collection.retainAll(new ArrayList<>());
+        // then
+        assert !retains : "Retains empty collection";
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void retainAllFromNonEmptyCollection(List<String> collection) {
+        // given
+        addElementsToCollection(collection, "one", "two", "three", "four");
+        List<String> temp = Arrays.asList("four");
+        // when
+        boolean retains = collection.retainAll(temp);
+        collection.forEach(e -> logger.log(Level.INFO, e));
+        // then
+        assert retains : "Cannot use retainsAll on non empty collection";
+    }
+
+    @Test(dataProvider = "collectionImpl", expectedExceptions = NullPointerException.class)
+    public void retainAllNullCollection(List<String> collection) {
+        //given
+        List<String> tempList = null;
+        //when
+        collection.retainAll(tempList);
+    }
+
+    @Test(dataProvider = "collectionImpl")
+    public void retainNullCollectionFromCollectionContainingNull(List<String> collection) {
+        // given
+        List tempList = new ArrayList() {{
+            add(null);
+        }};
+        addElementsToCollection(collection, null, "one", "two", "three");
+        // when
+        boolean retains = collection.retainAll(tempList);
+        // then
+        assert retains : "Cannot retain null collection";
+    }
+
 
     private void addElementsToCollection(List<String> collection, String... elements) {
         collection.addAll(Arrays.asList(elements));
+    }
+
+    private UnaryOperator<String> getOperator() {
+        return s -> s = "TEST_TEXT";
+    }
+
+    private UnaryOperator<String> getNullOperator() {
+        return s -> s = null;
     }
 
 }
