@@ -69,7 +69,6 @@ public class ListTest {
         int sizeAfter = collection.size();
         // then
         assert sizeAfter == sizeBefore + 1 : "Size after is wrong";
-        assert collection.get(1) != null : "2nd element is null";
     }
 
     @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
@@ -99,7 +98,7 @@ public class ListTest {
     }
 
     @Test(dataProvider = "collectionImpl", expectedExceptions = UnsupportedOperationException.class)
-    public void addToUnmodifialbeListThrowsUOE(List<String> collection) {
+    public void addToUnmodifiableListThrowsUSE(List<String> collection) {
         // given
         List<String> temp = Collections.unmodifiableList(collection);
         temp.add("elo elo elo");
@@ -122,13 +121,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void addAnotherNotNullCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>() {
-            {
-                add("testString");
-                add("testString");
-                add(null);
-            }
-        };
+        List<String> tempList = new ArrayList<String>();
+        addElementsToCollection(tempList, "testString", "testString");
         // when
         boolean isAdded = collection.addAll(tempList);
         // then
@@ -173,13 +167,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void addAnotherNotEmptyCollectionDifferentType(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>() {
-            {
-                add("testString");
-                add("testString");
-                add(null);
-            }
-        };
+        List<String> tempList = new LinkedList<>();
+        addElementsToCollection(tempList, "testString", "testString", null);
         // when
         boolean isAdded = collection.addAll(tempList);
         // then
@@ -209,11 +198,8 @@ public class ListTest {
     @Test(expectedExceptions = IndexOutOfBoundsException.class, dataProvider = "collectionImpl")
     public void addAnotherCollectionAtIndexBiggerThanSize(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>() {
-            {
-                add("testString");
-            }
-        };
+        List<String> tempList = new ArrayList<String>();
+        addElementsToCollection(tempList, "testString");
         // when
         collection.addAll(collection.size() + 2, tempList);
         // then
@@ -307,12 +293,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void containsAllDifferentTypeNotEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>() {
-            {
-                add("one");
-                add("two");
-            }
-        };
+        List<String> tempList = new LinkedList<>();
+        addElementsToCollection(tempList, "one", "two");
         collection.addAll(tempList);
         // when
         boolean containsAll = collection.containsAll(tempList);
@@ -323,7 +305,7 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void containsAllDifferentTypeEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>();
+        List<String> tempList = new LinkedList<>();
         collection.addAll(tempList);
         // when
         boolean containsAll = collection.containsAll(tempList);
@@ -352,7 +334,7 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsAnotherEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>();
+        List<String> tempList = new ArrayList<>();
         // when
         boolean equalsAnother = collection.equals(tempList);
         // then
@@ -362,12 +344,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsAnotherNonEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>() {
-            {
-                add("one");
-                add("two");
-            }
-        };
+        List<String> tempList = new ArrayList<>();
+        addElementsToCollection(tempList, "one", "two");
         // when
         boolean equalsAnother = collection.equals(tempList);
         // then
@@ -377,8 +355,7 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsEmptyCollection(List<String> collection) {
         // given
-        collection.add("one");
-        collection.add("two");
+        addElementsToCollection(collection, "one", "two");
         List<String> tempList = new ArrayList<String>();
         // when
         boolean equalsAnother = collection.equals(tempList);
@@ -389,12 +366,9 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsNonEmptyCollection(List<String> collection) {
         // given
-        collection.add("one");
-        collection.add("two");
-        List<String> tempList = new ArrayList<String>() {{
-            add("one");
-            add("two");
-        }};
+        List<String> tempList = new ArrayList<>();
+        addElementsToCollection(collection, "one", "two");
+        addElementsToCollection(tempList, "one", "two");
         // when
         boolean equalsAnother = collection.equals(tempList);
         // then
@@ -414,10 +388,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsAnotherDifferentTypeNonEmptyCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>() {{
-            add("one");
-            add("two");
-        }};
+        List<String> tempList = new LinkedList<>();
+        addElementsToCollection(tempList, "one", "two");
         // when
         boolean equalsAnother = collection.equals(tempList);
         // then
@@ -427,8 +399,7 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsAnotherTypeEmptyCollection(List<String> collection) {
         // given
-        collection.add("one");
-        collection.add("two");
+        addElementsToCollection(collection, "one", "two");
         List<String> tempList = new LinkedList<String>();
         // when
         boolean equalsAnother = collection.equals(tempList);
@@ -439,12 +410,9 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void equalsAnotherTypeNonEmptyCollection(List<String> collection) {
         // given
-        collection.add("one");
-        collection.add("two");
-        List<String> tempList = new LinkedList<String>() {{
-            add("one");
-            add("two");
-        }};
+        List<String> tempList = new LinkedList<String>();
+        addElementsToCollection(collection, "one", "two");
+        addElementsToCollection(tempList, "one", "two");
         // when
         boolean equalsAnother = collection.equals(tempList);
         // then
@@ -470,8 +438,7 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void getFirstElementFromNonEmptyCollection(List<String> collection) {
         // given
-        collection.add("one");
-        collection.add("two");
+        addElementsToCollection(collection, "one", "two");
         // when
         String first = collection.get(0);
         // then
@@ -481,10 +448,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void getFirstElementFromNonEmptyCollectionIncludingAnotherCollection(List<String> collection) {
         // given
-        List<String> tempList = new ArrayList<String>() {{
-            add("one");
-            add("two");
-        }};
+        List<String> tempList = new ArrayList<String>();
+        addElementsToCollection(tempList, "one", "two");
         collection.addAll(tempList);
         // when
         String first = collection.get(0);
@@ -495,10 +460,8 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void getFirstElementFromNonEmptyCollectionIncludingAnotherDifferentTypeCollection(List<String> collection) {
         // given
-        List<String> tempList = new LinkedList<String>() {{
-            add("one");
-            add("two");
-        }};
+        List<String> tempList = new LinkedList<String>();
+        addElementsToCollection(tempList, "one", "two");
         collection.addAll(tempList);
         // when
         String first = collection.get(0);
@@ -663,7 +626,7 @@ public class ListTest {
         // when
         ListIterator<String> iterator = collection.listIterator(2);
         // then
-        assert collection.get(2).equals(iterator.next()) : "List iterator of empty collection is not a list iterator";
+        assert collection.get(2).equals(iterator.next()) : "List iterator contains wrong element";
     }
 
     @Test(dataProvider = "collectionImpl", expectedExceptions = IndexOutOfBoundsException.class)
@@ -1083,5 +1046,4 @@ public class ListTest {
 
         return true;
     }
-
 }

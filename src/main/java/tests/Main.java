@@ -1,7 +1,7 @@
 package tests;
 
 import java.math.BigInteger;
-import java.util.stream.Stream;
+import java.util.Random;
 
 public class Main {
 
@@ -18,12 +18,14 @@ public class Main {
 //    }
 
     public static void main(String[] args) {
-        final int n = 10000;
-        Fibonacci fibonacci = new Fibonacci();
-
-        Stream.generate(fibonacci::next)
-                .limit(n)
-                .forEach(System.out::println);
+//        final int n = 10000;
+//        Fibonacci fibonacci = new Fibonacci();
+//
+//        Stream.generate(fibonacci::next)
+//                .limit(n)
+//                .forEach(System.out::println);
+        Random random = new Random();
+        System.out.println(random.nextInt(13) + 1);
 
     }
 
