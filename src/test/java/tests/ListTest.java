@@ -205,13 +205,13 @@ public class ListTest {
     }
 
     @Test(dataProvider = "collectionImpl")
-    public void clearNotEmptyList(List<String> collection) {
+    public void clearNonEmptyList(List<String> collection) {
         // given
         addElementsToCollection(collection, "one", "two");
         // when
         collection.clear();
         // then
-        assert collection.size() == 0 : "Not empty list after clearing";
+        assert collection.size() == 0 : "Non empty list after clearing";
     }
 
     @Test(dataProvider = "collectionImpl")
@@ -263,7 +263,7 @@ public class ListTest {
     }
 
     @Test(dataProvider = "collectionImpl")
-    public void containsAllNotEmptyCollection(List<String> collection) {
+    public void containsAllNonEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<String>() {
             {
@@ -290,7 +290,7 @@ public class ListTest {
     }
 
     @Test(dataProvider = "collectionImpl")
-    public void containsAllDifferentTypeNotEmptyCollection(List<String> collection) {
+    public void containsAllDifferentTypeNonEmptyCollection(List<String> collection) {
         // given
         List<String> tempList = new LinkedList<>();
         addElementsToCollection(tempList, "one", "two");
@@ -363,7 +363,7 @@ public class ListTest {
     }
 
     @Test(dataProvider = "collectionImpl")
-    public void equalsNonEmptyCollection(List<String> collection) {
+    public void equalsNonEmptyCollectionIsEqualToAnotherEmptyCollectionWithTheSameElement(List<String> collection) {
         // given
         List<String> tempList = new ArrayList<>();
         addElementsToCollection(collection, "one", "two");
@@ -911,7 +911,8 @@ public class ListTest {
     public void sortAscendingNonEmptyCollectionWithMixedContent(List<String> collection) {
         // given
         addElementsToCollection(collection, "1", "3", "2", "7", "three", "four", "one");
-        List<String> tempList = Arrays.asList("1", "2", "3", "7", "four", "one", "three");
+        List<String> tempList = new ArrayList<>();
+        addElementsToCollection(tempList, "1", "2", "3", "7", "four", "one", "three");
         // when
         collection.sort(Comparator.comparing(String::toString));
         // then
@@ -938,7 +939,6 @@ public class ListTest {
     @Test(dataProvider = "collectionImpl")
     public void spliteratorForEmptyCollection(List<String> collection) {
         // given
-        addElementsToCollection(collection, "one", "two", "three");
         // when
         // then
         assert collection.spliterator() instanceof Spliterator : "$MSG";
