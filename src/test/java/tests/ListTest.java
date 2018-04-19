@@ -112,7 +112,7 @@ public class ListTest {
         // given
         // when
         int sizeBefore = 0;
-        collection.add(0, "testString");
+        collection.add(collection.size(), "testString");
         int sizeAfter = collection.size();
         // then
         assert sizeAfter == sizeBefore + 1 : "Size after is wrong";
@@ -127,7 +127,6 @@ public class ListTest {
         boolean isAdded = collection.addAll(tempList);
         // then
         assert isAdded : "Another collection not added";
-        assert tempList.size() == collection.size() : "Sizes are different";
     }
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
