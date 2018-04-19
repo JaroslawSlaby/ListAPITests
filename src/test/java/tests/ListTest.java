@@ -9,8 +9,6 @@ import java.util.function.UnaryOperator;
 
 public class ListTest {
 
-//    private Logger logger = Logger.getLogger(getClass().getName());
-
     @DataProvider(name = "collectionImpl")
     public Object[] collectionImpl() {
         return new Object[]{
@@ -149,7 +147,6 @@ public class ListTest {
         List temp2 = Arrays.asList("1a", "2a", "3a");
         // when
         boolean isAdded = temp2.addAll(temp);
-//        temp2.forEach(e -> logger.log(Level.INFO, e.toString()));
         // then
         assert isAdded : "";
     }
@@ -771,7 +768,6 @@ public class ListTest {
         addElementsToCollection(collection, "one", "two", "two", "two", "three", "four");
         // when
         boolean removed = collection.removeAll(temp);
-//        collection.forEach(e -> logger.log(Level.INFO, e));
         // then
         assert removed : "Cannot remove elements added to temporary collection from tested collection";
     }
@@ -842,7 +838,6 @@ public class ListTest {
         List<String> temp = Arrays.asList("four");
         // when
         boolean retains = collection.retainAll(temp);
-//        collection.forEach(e -> logger.log(Level.INFO, e));
         // then
         assert retains : "Cannot use retainsAll on non empty collection";
     }
